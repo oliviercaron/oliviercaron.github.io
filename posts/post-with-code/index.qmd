@@ -1,21 +1,25 @@
 ---
-title: "Indice de position sociale <br> Social position index"
-bibliography: references.bib
+title: "Social position index"
 date : "last-modified"
 author: "Olivier Caron"
 categories: [public policy, code, analysis]
 image: "image.jpg"
-format:
-  html:
-    grid:
-      body-width: 1800px
+execute:
+  echo: true
+  warning: false
+  message: false
+editor: visual
+fig-align: "center"
+code-fold: true
+code-summary: "Display code"
+code-tools: true #enables to display/hide all blocks of code
+code-copy: true #enables to copy code
 ---
 
 This is a post with executable code.
 
 ```{r}
 library(tidyverse)
-library(esquisse)
 library(readr)
 library(reactable)
 ```
@@ -23,29 +27,35 @@ library(reactable)
 ```{r}
 ips_colleges <- read_delim("ips_colleges.csv")
 ips_lycees <- read_delim("ips_lycees.csv")
+ips_ecoles <- read_delim("ips_ecoles.csv")
 ```
 ```{r}
 column_names_colleges <- c("school_year", "academy", "code_department", "department", "uai", "institution_name", "insee_code_commune", "commune_name", "sector", "ips", "sd_ips")
+
+column_names_ecoles <- c("school_year", "academy", "code_department", "department", "uai", "institution_name", "insee_code_commune", "commune_name", "sector", "ips")
 
 column_names_lycees <- c("school_year", "academy", "code_department", "department", "uai", "institution_name", "insee_code_commune", "commune_name", "sector", "lycee_type", "ips_gt", "ipd_pro", "ips", "sd_ips_gt", "sd_ips_pro")
 
 #modify column names
 names(ips_colleges)[1:11] <- column_names_colleges
+names(ips_ecoles)[1:10] <- column_names_ecoles
 names(ips_lycees)[1:15] <- column_names_lycees
 
 ips_colleges["school_type"] <- "college"
+ips_ecoles["school_type"] <- "ecole"
 ips_lycees["school_type"] <- "lycee"
 
-ips_data <- bind_rows(ips_colleges,ips_lycees)
+ips_data <- bind_rows(ips_colleges,ips_lycees,ips_ecoles)
 write_csv(ips_data,"ips_data.csv")
 #write.csv(ips_data, "ips_data.csv", na = "", fileEncoding = "UTF-8")
 ```
 ```{r}
+#| column: screen
 
 ips_data_reduced <- ips_data %>%
   select(school_year, school_type, ips, sector, institution_name, commune_name) %>%
   rename(
-    "School Year" = school_year,
+    "Year" = school_year,
     "School Type" = school_type,
     "IPS" = ips,
     "Sector" = sector,
@@ -53,12 +63,31 @@ ips_data_reduced <- ips_data %>%
     "Commune Name" = commune_name
   )
 
-reactable(ips_data_reduced, filterable = TRUE, sortable = TRUE, bordered = TRUE)
+reactable(
+  MASS::Cars93[1:6, c("Make", "Type", "Weight")],
+  columns = list(
+    Make = colDef(minWidth = 200),   # 50% width, 200px minimum
+    Type = colDef(minWidth = 100),   # 25% width, 100px minimum
+    Weight = colDef(minWidth = 100)  # 25% width, 100px minimum
+  ),
+  bordered = TRUE
+)
+
+reactable(ips_data_reduced,
+          columns = list(
+            Year = colDef(minWidth = 65)
+          ),
+          filterable = TRUE,
+          sortable = TRUE,
+          bordered = TRUE)
 ```
 
 
 
 ```{r}
+library(esquisse)
+esquisser(data=)
+
 
 ```
 
