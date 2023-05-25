@@ -14,22 +14,36 @@ code-fold: true
 code-summary: "Display code"
 code-tools: true #enables to display/hide all blocks of code
 code-copy: true #enables to copy code
+bibliography: references.bib
+toc: true
+toc-location: left
+number-sections: true
 ---
 
-This is a post with executable code.
+## The story of the Social Position Index
+
+Once upon a time in France, there was a remarkable tool called the Social Position Index (SPI). This index held the power to unravel the stark inequalities that existed within the realm of education for French citizens. The SPI was a product of the diligent calculations performed by the Department for Evaluation, Prospective and Performance (DEPP). It served as a mirror reflecting the socio-economic and cultural circumstances of the families whose children attended various schools across the country [@rocher2016construction].
+
+This tool, rather simple in its concept, derives its power from a complex calculation process. The Social Position Index (SPI) takes into account a multitude of factors to accurately assess the socio-economic and cultural conditions of the families associated with each school. It analyzes various indicators such as household income, parental education level, occupation, and even cultural resources within the community. These data points are meticulously collected and synthesized by the Department for Evaluation, Prospective and Performance (DEPP) to generate a comprehensive picture of the social landscape surrounding each educational institution. Through this meticulous calculation, the SPI uncovers the glaring disparities that exist within the education system, shedding light on the undeniable influence of social position on the educational opportunities available to French citizens.
 
 ```{r}
+#|label: libraries
 library(tidyverse)
 library(readr)
 library(reactable)
+library(gt)
+library(flextable)
+library(stargazer)
 ```
 
 ```{r}
+#| label: load-transform-data
+#| column: page
+
 ips_colleges <- read_delim("ips_colleges.csv")
 ips_lycees <- read_delim("ips_lycees.csv")
 ips_ecoles <- read_delim("ips_ecoles.csv")
-```
-```{r}
+
 column_names_colleges <- c("school_year", "academy", "code_department", "department", "uai", "institution_name", "insee_code_commune", "commune_name", "sector", "ips", "sd_ips")
 
 column_names_ecoles <- c("school_year", "academy", "code_department", "department", "uai", "institution_name", "insee_code_commune", "commune_name", "sector", "ips")
@@ -48,46 +62,45 @@ ips_lycees["school_type"] <- "lycee"
 ips_data <- bind_rows(ips_colleges,ips_lycees,ips_ecoles)
 write_csv(ips_data,"ips_data.csv")
 #write.csv(ips_data, "ips_data.csv", na = "", fileEncoding = "UTF-8")
+
+select(ips_data, contains("ips")) %>% summary()
+
+#ips_data %>%
+#  select(contains("ips")) %>%
+#  select(-contains("sd")) %>%
+#  summary()
 ```
+
 ```{r}
-#| column: screen
+#| label: reactable
+#| column: page
 
 ips_data_reduced <- ips_data %>%
-  select(school_year, school_type, ips, sector, institution_name, commune_name) %>%
+  select(school_year, school_type, ips, sector, uai, institution_name, commune_name) %>%
   rename(
     "Year" = school_year,
     "School Type" = school_type,
     "IPS" = ips,
     "Sector" = sector,
+    "School ID" = uai,
     "Institution Name" = institution_name,
     "Commune Name" = commune_name
-  )
-
-reactable(
-  MASS::Cars93[1:6, c("Make", "Type", "Weight")],
-  columns = list(
-    Make = colDef(minWidth = 200),   # 50% width, 200px minimum
-    Type = colDef(minWidth = 100),   # 25% width, 100px minimum
-    Weight = colDef(minWidth = 100)  # 25% width, 100px minimum
-  ),
-  bordered = TRUE
-)
+  ) %>%
+  mutate(Sector = if_else(Sector == "privé sous contrat", "privé", Sector))
 
 reactable(ips_data_reduced,
-          columns = list(
-            Year = colDef(minWidth = 65)
+          columns = list
+          (
+            Year = colDef(minWidth = 100, align = "center"),
+            `School Type` = colDef(minWidth = 80, align = "center"),
+            IPS = colDef(minWidth = 70, align = "center"),
+            Sector = colDef(minWidth = 80, align = "center"),
+            `School ID` = colDef(minWidth = 100, align = "center"),
+            `Institution Name` = colDef(minWidth = 350, align = "center"),
+            `Commune Name` = colDef(minWidth = 200, align = "center")
           ),
           filterable = TRUE,
           sortable = TRUE,
           bordered = TRUE)
-```
-
-
-
-```{r}
-library(esquisse)
-esquisser(data=)
-
 
 ```
-
