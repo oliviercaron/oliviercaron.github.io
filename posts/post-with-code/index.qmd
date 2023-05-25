@@ -38,7 +38,7 @@ library(stargazer)
 
 ```{r}
 #| label: load-transform-data
-#| column: page
+#| column: body-outset-right
 
 ips_colleges <- read_delim("ips_colleges.csv")
 ips_lycees <- read_delim("ips_lycees.csv")
